@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111827" />
+  <title>FinanceFlow | Personal Finance Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-brand">◈ Finance<span class="accent">Flow</span></div>
+      <h1 id="authHeading">Welcome back</h1>
+      <p class="muted" id="authSubheading">Sign in to view your personal finance dashboard.</p>
+      <form id="authForm" class="auth-form">
+        <div id="nameField" hidden><label for="authName">Full name</label><input id="authName" autocomplete="name" maxlength="120" /></div>
+        <label for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="email" required />
+        <label for="authPassword">Password</label><input id="authPassword" type="password" minlength="10" maxlength="72" autocomplete="current-password" required />
+        <p id="authError" class="auth-error" role="alert" hidden></p>
+        <button class="btn btn-primary" id="authSubmit" type="submit">Sign in</button>
+      </form>
+      <p class="auth-switch"><span id="authSwitchPrompt">New to FinanceFlow?</span> <button id="authSwitch" class="text-btn" type="button">Create account</button></p>
+    </div>
+  </section>
+  <div class="app" id="dashboardApp" hidden>
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-icon">◈</span><span>Finance<span class="accent">Flow</span></span></div>
+      <p class="side-label">WORKSPACE</p>
+      <nav class="navigation" aria-label="Main navigation">
+        <button class="nav-link active" data-page="dashboard">▦ <span>Dashboard</span></button>
+        <button class="nav-link" data-page="transactions">⇄ <span>Transactions</span></button>
+        <button class="nav-link" data-page="budgets">◎ <span>Budgets</span></button>
+        <button class="nav-link" data-page="reports">▥ <span>Reports</span></button>
+        <button class="nav-link" data-page="settings">⚙ <span>Settings</span></button>
+      </nav>
+      <div class="side-bottom"><span class="status-dot"></span> Phase 6 · MySQL Connected <p id="accountLabel">Sign in to get started</p></div>
+    </aside>
+    <div class="main-area">
+      <header class="topbar">
+        <div class="top-left"><button id="menuToggle" class="icon-btn menu-toggle" aria-label="Toggle menu">☰</button><div><p class="eyebrow">PERSONAL FINANCE TRACKER</p><h1 id="pageTitle">Dashboard</h1></div></div>
+        <div class="top-actions"><button class="btn btn-outline" id="logoutBtn" type="button">Log out</button><label class="month-picker">Month <input id="monthPicker" type="month" aria-label="Select month" /></label><button class="btn btn-primary" id="addTransactionBtn">＋ Add Transaction</button></div>
+      </header>
+      <main>
+        <section class="page active" id="page-dashboard">
+          <div class="welcome"><div><h2>Make every rupee count.</h2><p>Track your money, stay on budget, and build better financial habits.</p></div><span class="welcome-art">₹</span></div>
+          <div id="dashboardBudgetAlert" class="dashboard-budget-alert" role="status" aria-live="polite" hidden>
+            <span class="budget-alert-symbol" aria-hidden="true">⚠</span>
+            <div class="budget-alert-content">
+              <strong id="dashboardBudgetAlertTitle">Budget threshold reached</strong>
+              <p id="dashboardBudgetAlertMessage"></p>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <article class="stat-card"><div class="stat-heading">Total Income <span class="stat-icon green">↗</span></div><div class="stat-value" id="incomeTotal">₹0</div><p class="stat-note">Income this month</p></article>
+            <article class="stat-card"><div class="stat-heading">Total Expenses <span class="stat-icon red">↘</span></div><div class="stat-value" id="expenseTotal">₹0</div><p class="stat-note">Spending this month</p></article>
+            <article class="stat-card"><div class="stat-heading">Net Balance <span class="stat-icon blue">◈</span></div><div class="stat-value" id="balanceTotal">₹0</div><p class="stat-note">Income minus expenses</p></article>
+            <article class="stat-card"><div class="stat-heading">Monthly Budget <span class="stat-icon amber">◎</span></div><div class="stat-value" id="budgetTotal">₹0</div><p class="stat-note" id="budgetNote">Set a budget to get started</p></article>
+          </div>
+          <div class="charts-grid"><article class="panel"><div class="panel-head"><div><h3>Income vs Expenses</h3><p>Last six months</p></div></div><div class="chart-wrap"><canvas id="trendChart" aria-label="Income and expense bar chart" role="img"></canvas></div></article><article class="panel"><div class="panel-head"><div><h3>Expense Breakdown</h3><p>Spending by category for selected month</p></div></div><div class="chart-wrap"><canvas id="categoryChart" aria-label="Expense category doughnut chart" role="img"></canvas></div></article></div>
+          <article class="panel"><div class="panel-head"><div><h3>Recent Transactions</h3><p>Your latest financial activity</p></div><button class="text-btn" data-go="transactions">View all →</button></div><div class="table-scroll"><table><thead><tr><th>Transaction</th><th>Category</th><th>Date</th><th>Type</th><th>Amount</th></tr></thead><tbody id="recentBody"></tbody></table></div></article>
+        </section>
+        <section class="page" id="page-transactions"><div class="section-intro"><h2>All Transactions</h2><p>Manage your income and expenses in one place.</p></div><article class="panel"><div class="filters"><input id="searchInput" type="search" placeholder="Search description or category…" aria-label="Search transactions"/><select id="typeFilter" aria-label="Filter transaction type"><option value="all">All types</option><option value="income">Income</option><option value="expense">Expense</option></select><button id="exportBtn" class="btn btn-outline">↓ Export CSV</button></div><div class="table-scroll"><table><thead><tr><th>Description</th><th>Category</th><th>Date</th><th>Type</th><th>Amount</th><th>Actions</th></tr></thead><tbody id="transactionsBody"></tbody></table></div><p class="table-footer" id="transactionCount"></p></article></section>
+        <section class="page" id="page-budgets"><div class="section-intro"><h2>Budget Planner</h2><p>Set a monthly spending limit and track your progress.</p></div><div class="budget-grid"><article class="panel"><h3>Set Monthly Budget</h3><p class="muted">Budget for <span id="budgetMonthLabel"></span></p><form id="budgetForm" class="budget-form"><label for="budgetInput">Monthly limit (₹)</label><input id="budgetInput" type="number" min="0" step="0.01" required placeholder="e.g. 15000"/><button class="btn btn-primary" type="submit">Save Budget</button></form></article><article class="panel"><h3>Budget Usage</h3><div class="budget-numbers"><strong id="budgetSpent">₹0 spent</strong><span id="budgetLimit">of ₹0</span></div><div class="progress-track"><div id="budgetProgress" class="progress-fill"></div></div><p class="muted" id="budgetStatus">Set a monthly budget to begin.</p></article></div></section>
+        <section class="page" id="page-reports"><div class="section-intro"><h2>Financial Reports</h2><p>Understand your financial activity with simple insights.</p></div><div class="report-summary"><article class="panel"><p class="muted">Savings Rate</p><h2 id="savingsRate">0%</h2><p class="muted">Balance ÷ income</p></article><article class="panel"><p class="muted">Transactions This Month</p><h2 id="reportCount">0</h2><p class="muted">Income and expenses</p></article><article class="panel"><p class="muted">Top Expense Category</p><h2 id="topCategory">—</h2><p class="muted">Highest spending</p></article></div><div class="charts-grid"><article class="panel"><h3>Six-Month Trends</h3><div class="chart-wrap"><canvas id="reportTrendChart" aria-label="Six-month trend chart" role="img"></canvas></div></article><article class="panel"><h3>Expense Categories</h3><div class="chart-wrap"><canvas id="reportCategoryChart" aria-label="Expense category chart" role="img"></canvas></div></article></div></section>
+        <section class="page" id="page-settings">
+          <div class="section-intro"><h2>User Settings</h2><p>Personalize FinanceFlow and control your budget alerts.</p></div>
+          <article class="panel settings-panel"><h3>Preferences</h3>
+            <form id="settingsForm" class="settings-form">
+              <label for="settingsCurrency">Display currency</label>
+              <select id="settingsCurrency"><option value="INR">INR — Indian Rupee</option><option value="USD">USD — US Dollar</option><option value="EUR">EUR — Euro</option></select>
+              <p class="muted">Changing currency changes the display symbol and formatting only; amounts are not converted.</p>
+              <label for="settingsTheme">Appearance</label><select id="settingsTheme"><option value="light">Light</option><option value="dark">Dark</option></select>
+              <label class="settings-check"><input type="checkbox" id="settingsAlerts" /> Enable budget alerts</label>
+              <label for="settingsThreshold">Alert when budget usage reaches (%)</label>
+              <input id="settingsThreshold" type="number" min="1" max="100" step="1" required value="80" />
+              <button class="btn btn-primary" type="submit">Save Settings</button>
+            </form>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+  <dialog id="transactionDialog" class="transaction-dialog"><form id="transactionForm" class="modal-form"><div class="modal-head"><h2 id="modalTitle">Add Transaction</h2><button type="button" id="closeModal" class="icon-btn" aria-label="Close dialog">✕</button></div><input type="hidden" id="editId"/><label for="descriptionInput">Description</label><input id="descriptionInput" maxlength="100" required placeholder="e.g. Grocery shopping"/><label for="amountInput">Amount (₹)</label><input id="amountInput" type="number" min="0.01" max="999999999" step="0.01" required placeholder="0.00"/><label for="transactionType">Type</label><select id="transactionType"><option value="expense">Expense</option><option value="income">Income</option></select><label for="categoryInput">Category</label><select id="categoryInput" required></select><label for="dateInput">Date</label><input id="dateInput" type="date" required/><div class="modal-actions"><button class="btn btn-outline" id="cancelModal" type="button">Cancel</button><button class="btn btn-primary" type="submit">Save Transaction</button></div></form></dialog>
+  <div id="loadingOverlay" class="loading-overlay" hidden>Loading your financial data…</div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
