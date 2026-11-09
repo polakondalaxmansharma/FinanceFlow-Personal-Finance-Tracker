@@ -6,9 +6,11 @@
 // No trailing slash and no /api suffix: the code appends /api below.
 const DEPLOYED_BACKEND_URL = 'https://YOUR-BACKEND-NAME.onrender.com';
 const IS_LOCAL_FRONTEND = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-const API_BASE = IS_LOCAL_FRONTEND
-  ? 'http://localhost:5000/api'
-  : `${DEPLOYED_BACKEND_URL.replace(/\/$/, '')}/api`;
+const API_BASE =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5000/api"
+    : "https://financeflow-personal-finance-tracker.onrender.com/api";
 
 const $ = id => document.getElementById(id);
 
